@@ -6,6 +6,7 @@
 /src/DebCo.Services.Tax.Providers.TaxJar/bin
 /src/DebCo.Services.Tax.Providers.TaxJar/obj
 /test/DebCo.Services.Tax.Providers.Tests/obj
+/test/DebCo.Services.Tax.Providers.Tests/bin
 /test/DebCo.Services.Tax.Tests/bin
 /test/DebCo.Services.Tax.Tests/obj
 /TestResults

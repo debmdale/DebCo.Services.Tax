@@ -17,6 +17,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EF2A9328-8CA7-49F6-B5FA-148C8F54AA98}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		build\DebCo.Services.Tax.Build.yml = build\DebCo.Services.Tax.Build.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DebCo.Services.Tax", "src\DebCo.Services.Tax\DebCo.Services.Tax.csproj", "{AB72CFCA-A7E2-4439-9E34-5BB9FA849241}"
