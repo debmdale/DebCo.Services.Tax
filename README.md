@@ -8,7 +8,7 @@ This solution contains the following projects:
 - DebCo.Services.Tax.Tests (Tests for the API Site - .NET CORE 3.1)
 - DebCo.Services.Tax.Providers.Tests (Tests for the Tax Service Providers - .NET CORE 3.1)
 
-This is a simple solution showing how to create your own REST API service wrapper around an external third party service provider.  
+This is a simple solution showing how to create your own REST API service wrapper around an external third party service provider. 
 The example for this solution is a Tax service, and I've integrated two methods available from the TaxJar service provider here.
 This solution could easily be expanded to integrate multiple tax services, allowing the requester to distinguish which provider
 to request tax data from, without having to worry about integrating with that provider directly.  Or perhaps you'd like to write

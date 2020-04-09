@@ -27,6 +27,7 @@ namespace DebCo.Services.Tax.Tests
         }
 
         [Fact]
+        [Trait("Level","L0")]
         public void TaxRatesController_Constructor_ThrowsOnNullArguments()
         {
             var logger = NullLogger<TaxRatesController>.Instance;
@@ -39,6 +40,7 @@ namespace DebCo.Services.Tax.Tests
         }
 
         [Fact]
+        [Trait("Level","L0")]
         public async Task GetRatesById_Returns200_WhenFound()
         {
 
@@ -56,6 +58,7 @@ namespace DebCo.Services.Tax.Tests
         }
 
         [Fact]
+        [Trait("Level","L0")]
         public async Task GetRatesById_Returns404_WhenNotFound()
         {
             var fixture = new Fixture()

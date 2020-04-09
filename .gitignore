@@ -1,0 +1,11 @@
+﻿/.vs/DebCo.Services.Tax
+/src/DebCo.Services.Tax/obj
+/src/DebCo.Services.Tax/bin
+/src/DebCo.Services.Tax.Abstractions/bin/
+/src/DebCo.Services.Tax.Abstractions/obj
+/src/DebCo.Services.Tax.Providers.TaxJar/bin
+/src/DebCo.Services.Tax.Providers.TaxJar/obj
+/test/DebCo.Services.Tax.Providers.Tests/obj
+/test/DebCo.Services.Tax.Tests/bin
+/test/DebCo.Services.Tax.Tests/obj
+/TestResults

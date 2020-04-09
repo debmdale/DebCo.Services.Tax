@@ -29,6 +29,7 @@ namespace DebCo.Services.Tax.Tests
         }
 
         [Fact]
+        [Trait("Level","L0")]
         public void TaxQuoteController_Constructor_ThrowsOnNullArguments()
         {
             var logger = NullLogger<TaxQuoteController>.Instance;
@@ -42,6 +43,7 @@ namespace DebCo.Services.Tax.Tests
 
         
         [Fact]
+        [Trait("Level","L0")]
         public async Task TaxQuotePost_Returns200_WhenSuccessful()
         {
 
@@ -60,6 +62,7 @@ namespace DebCo.Services.Tax.Tests
         }
         
         [Fact]
+        [Trait("Level","L0")]
         public async Task TaxQuotePost_Returns404_WhenNotFound()
         {
             var fixture = new Fixture()
