@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
 using AutoMapper;
-using DebCo.Services.Tax.Abstractions;
-using DebCo.Services.Tax.Providers.TaxJar.Contracts;
+using DebCo.Services.Tax.Providers.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
+using TaxQuoteRequest = DebCo.Services.Tax.Abstractions.TaxQuoteRequest;
+using TaxQuoteResponse = DebCo.Services.Tax.Abstractions.TaxQuoteResponse;
 
 namespace DebCo.Services.Tax.Controllers
 {
@@ -16,9 +17,9 @@ namespace DebCo.Services.Tax.Controllers
     {
         private readonly ILogger<TaxQuoteController> _logger;
         private readonly IMapper _mapper;
-        private readonly ITaxJarService _client;
+        private readonly ITaxServiceProvider _client;
 
-        public TaxQuoteController(ILogger<TaxQuoteController> logger, IMapper mapper, ITaxJarService client)
+        public TaxQuoteController(ILogger<TaxQuoteController> logger, IMapper mapper, ITaxServiceProvider client)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
@@ -40,9 +41,9 @@ namespace DebCo.Services.Tax.Controllers
 
             try
             {
-                var clientResult = await _client.GetOrderTaxAsync(_mapper.Map<Order>(request.Quote)).ConfigureAwait(false);
+                var clientResult = await _client.GetOrderTaxAsync(_mapper.Map<Providers.Abstractions.Quote>(request.Quote)).ConfigureAwait(false);
 
-                if (clientResult?.Tax == null)
+                if (clientResult?.QuoteTax == null)
                 {
                     _logger.LogWarning("Get quote for order {@Order} unsuccessful: not found", request);
                     return NotFound(request);

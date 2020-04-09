@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoMapper;
-using DebCo.Services.Tax.Abstractions;
 using DebCo.Services.Tax.Controllers;
-using DebCo.Services.Tax.Providers.TaxJar.Contracts;
+using DebCo.Services.Tax.Providers.Abstractions;
 using DebCo.Services.Tax.Tests.Fixtures;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -19,13 +18,13 @@ namespace DebCo.Services.Tax.Tests
 {
     public class TaxQuoteControllerTests : IClassFixture<CustomWebApplicationFactory<Startup>>
     {
-        private readonly Mock<ITaxJarService> _taxJarServiceMock;
+        private readonly Mock<ITaxServiceProvider> _taxServiceMock;
         private readonly HttpClient _client;
 
         public TaxQuoteControllerTests(CustomWebApplicationFactory<Startup> factory)
         {
             _client = factory.CreateClient();
-            _taxJarServiceMock = factory.TaxJarServiceMock;
+            _taxServiceMock = factory.TaxServiceMock;
         }
 
         [Fact]
@@ -34,7 +33,7 @@ namespace DebCo.Services.Tax.Tests
         {
             var logger = NullLogger<TaxQuoteController>.Instance;
             var mapper = new Mock<IMapper>().Object;
-            var taxJar = new Mock<ITaxJarService>().Object;
+            var taxJar = new Mock<ITaxServiceProvider>().Object;
 
             Assert.Throws<ArgumentNullException>(() => new TaxQuoteController(null, mapper, taxJar));
             Assert.Throws<ArgumentNullException>(() => new TaxQuoteController(logger, null, taxJar));
@@ -50,10 +49,10 @@ namespace DebCo.Services.Tax.Tests
             var fixture = new Fixture()
                 .Customize(new AutoMoqCustomization());
 
-            var taxResponse = fixture.Create<TaxResponse>();
-            var quoteRequest = fixture.Create<TaxQuoteRequest>();
+            var taxResponse = fixture.Create<Providers.Abstractions.TaxQuoteResponse>();
+            var quoteRequest = fixture.Create<Providers.Abstractions.TaxQuoteRequest>();
             
-            _taxJarServiceMock.Setup(x => x.GetOrderTaxAsync(It.IsAny<Order>()))
+            _taxServiceMock.Setup(x => x.GetOrderTaxAsync(It.IsAny<Quote>()))
                 .ReturnsAsync(taxResponse);
 
             var response = await _client.PostAsJsonAsync("api/taxquote/", new StringContent(JsonConvert.SerializeObject(quoteRequest)));
@@ -68,11 +67,11 @@ namespace DebCo.Services.Tax.Tests
             var fixture = new Fixture()
                 .Customize(new AutoMoqCustomization());
 
-            var taxResponse = fixture.Create<TaxResponse>();
-            taxResponse.Tax = null;
-            var quoteRequest = fixture.Create<TaxQuoteRequest>();
+            var taxResponse = fixture.Create<Providers.Abstractions.TaxQuoteResponse>();
+            taxResponse.QuoteTax = null;
+            var quoteRequest = fixture.Create<Providers.Abstractions.TaxQuoteRequest>();
             
-            _taxJarServiceMock.Setup(x => x.GetOrderTaxAsync(It.IsAny<Order>()))
+            _taxServiceMock.Setup(x => x.GetOrderTaxAsync(It.IsAny<Quote>()))
                 .ReturnsAsync(taxResponse);
 
             var response = await _client.PostAsJsonAsync("api/taxquote/", new StringContent(JsonConvert.SerializeObject(quoteRequest)));

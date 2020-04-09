@@ -22,7 +22,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DebCo.Services.Tax.Abstractions\DebCo.Services.Tax.Abstractions.csproj" />
+    <ProjectReference Include="..\DebCo.Services.Tax.Providers.Abstractions\DebCo.Services.Tax.Providers.Abstractions.csproj" />
     <ProjectReference Include="..\DebCo.Services.Tax.Providers.TaxJar\DebCo.Services.Tax.Providers.TaxJar.csproj" />
+    <ProjectReference Include="..\DebCo.Services.Tax.Providers\DebCo.Services.Tax.Providers.csproj" />
   </ItemGroup>
 
 

@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DebCo.Services.Tax.Providers.Abstractions\DebCo.Services.Tax.Providers.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

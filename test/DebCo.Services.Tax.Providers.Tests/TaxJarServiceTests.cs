@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using AutoMapper;
 using DebCo.Services.Tax.Providers.TaxJar;
 using DebCo.Services.Tax.Providers.TaxJar.Contracts;
 using DebCo.Services.Tax.Providers.Tests.Fixtures;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 using Moq.Contrib.HttpClient;
 using Xunit;
 
@@ -18,10 +20,15 @@ namespace DebCo.Services.Tax.Providers.Tests
     {
         private readonly TaxJarFixture _fixture;
         private const string ClientName = "TaxJar";
+        private readonly IMapper _mapper;
 
         public TaxJarServiceTests(TaxJarFixture fixture)
         {
             _fixture = fixture;
+            var config = new MapperConfiguration(cfg => {
+                cfg.AddProfile(typeof(DebCoMappingProfile));
+            });
+            _mapper = config.CreateMapper();
         }
 
         [Fact]
@@ -38,9 +45,11 @@ namespace DebCo.Services.Tax.Providers.Tests
         public void TaxJarClientConstructorThrowsOnInvalidArguments()
         {
             var logger = NullLogger<TaxJarService>.Instance;
+            var mapper = new Mock<IMapper>().Object;
 
-            Assert.Throws<ArgumentNullException>(() => new TaxJarService(null, logger));
-            Assert.Throws<ArgumentNullException>(() => new TaxJarService(_fixture.Factory, null));
+            Assert.Throws<ArgumentNullException>(() => new TaxJarService(null, logger, mapper));
+            Assert.Throws<ArgumentNullException>(() => new TaxJarService(_fixture.Factory, null, mapper));
+            Assert.Throws<ArgumentNullException>(() => new TaxJarService(_fixture.Factory, logger, null));
         }
 
         [Fact]
@@ -55,7 +64,7 @@ namespace DebCo.Services.Tax.Providers.Tests
                     responseMessage.Content = new StringContent("{\r\n  \"rate\": {\r\n    \"zip\": \"90404\",\r\n    \"state\": \"CA\",\r\n    \"state_rate\": \"0.0625\",\r\n    \"county\": \"LOS ANGELES\",\r\n    \"county_rate\": \"0.01\",\r\n    \"city\": \"SANTA MONICA\",\r\n    \"city_rate\": \"0.0\",\r\n    \"combined_district_rate\": \"0.025\",\r\n    \"combined_rate\": \"0.0975\",\r\n    \"freight_taxable\": false\r\n  }\r\n}");
                 });
 
-            var client = new TaxJarService(_fixture.Factory, logger);
+            var client = new TaxJarService(_fixture.Factory, logger, _mapper);
 
             var response = await client.GetRatesAsync("90404");
 
@@ -92,7 +101,7 @@ namespace DebCo.Services.Tax.Providers.Tests
                     responseMessage.Content = new StringContent("{\r\n  \"rate\": {\r\n    \"zip\": \"05495-2086\",\r\n    \"country\": \"US\",\r\n    \"country_rate\": \"0.0\",\r\n    \"state\": \"VT\",\r\n    \"state_rate\": \"0.06\",\r\n    \"county\": \"CHITTENDEN\",\r\n    \"county_rate\": \"0.0\",\r\n    \"city\": \"WILLISTON\",\r\n    \"city_rate\": \"0.0\",\r\n    \"combined_district_rate\": \"0.01\",\r\n    \"combined_rate\": \"0.07\",\r\n    \"freight_taxable\": true\r\n  }\r\n}");
                 });
 
-            var client = new TaxJarService(_fixture.Factory, logger);
+            var client = new TaxJarService(_fixture.Factory, logger, _mapper);
 
             var response = await client.GetRatesAsync("05495-2086", address);
 
@@ -151,7 +160,7 @@ namespace DebCo.Services.Tax.Providers.Tests
                     responseMessage.Content = new StringContent("{\r\n  \"tax\": {\r\n    \"order_total_amount\": 16.5,\r\n    \"shipping\": 1.5,\r\n    \"taxable_amount\": 15,\r\n    \"amount_to_collect\": 1.35,\r\n    \"rate\": 0.09,\r\n    \"has_nexus\": true,\r\n    \"freight_taxable\": false,\r\n    \"tax_source\": \"destination\",\r\n    \"jurisdictions\": {\r\n      \"country\": \"US\",\r\n      \"state\": \"CA\",\r\n      \"county\": \"LOS ANGELES\",\r\n      \"city\": \"LOS ANGELES\"\r\n    },\r\n    \"breakdown\": {\r\n      \"taxable_amount\": 15,\r\n      \"tax_collectable\": 1.35,\r\n      \"combined_tax_rate\": 0.09,\r\n      \"state_taxable_amount\": 15,\r\n      \"state_tax_rate\": 0.0625,\r\n      \"state_tax_collectable\": 0.94,\r\n      \"county_taxable_amount\": 15,\r\n      \"county_tax_rate\": 0.0025,\r\n      \"county_tax_collectable\": 0.04,\r\n      \"city_taxable_amount\": 0,\r\n      \"city_tax_rate\": 0,\r\n      \"city_tax_collectable\": 0,\r\n      \"special_district_taxable_amount\": 15,\r\n      \"special_tax_rate\": 0.025,\r\n      \"special_district_tax_collectable\": 0.38,\r\n      \"line_items\": [\r\n        {\r\n          \"id\": \"1\",\r\n          \"taxable_amount\": 15,\r\n          \"tax_collectable\": 1.35,\r\n          \"combined_tax_rate\": 0.09,\r\n          \"state_taxable_amount\": 15,\r\n          \"state_sales_tax_rate\": 0.0625,\r\n          \"state_amount\": 0.94,\r\n          \"county_taxable_amount\": 15,\r\n          \"county_tax_rate\": 0.0025,\r\n          \"county_amount\": 0.04,\r\n          \"city_taxable_amount\": 0,\r\n          \"city_tax_rate\": 0,\r\n          \"city_amount\": 0,\r\n          \"special_district_taxable_amount\": 15,\r\n          \"special_tax_rate\": 0.025,\r\n          \"special_district_amount\": 0.38\r\n        }\r\n      ]\r\n    }\r\n  }\r\n}");
                 });
 
-            var client = new TaxJarService(_fixture.Factory, logger);
+            var client = new TaxJarService(_fixture.Factory, logger, _mapper);
 
             var response = await client.GetOrderTaxAsync(order);
 

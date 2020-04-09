@@ -3,6 +3,10 @@
 /src/DebCo.Services.Tax/bin
 /src/DebCo.Services.Tax.Abstractions/bin/
 /src/DebCo.Services.Tax.Abstractions/obj
+/src/DebCo.Services.Tax.Providers/bin
+/src/DebCo.Services.Tax.Providers/obj
+/src/DebCo.Services.Tax.Providers.Abstractions/bin
+/src/DebCo.Services.Tax.Providers.Abstractions/obj
 /src/DebCo.Services.Tax.Providers.TaxJar/bin
 /src/DebCo.Services.Tax.Providers.TaxJar/obj
 /test/DebCo.Services.Tax.Providers.Tests/obj

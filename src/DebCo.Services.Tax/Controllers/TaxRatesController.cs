@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
 using AutoMapper;
-using DebCo.Services.Tax.Abstractions;
-using DebCo.Services.Tax.Providers.TaxJar.Contracts;
+using DebCo.Services.Tax.Providers.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
+using TaxRatesRequest = DebCo.Services.Tax.Abstractions.TaxRatesRequest;
+using TaxRatesResponse = DebCo.Services.Tax.Abstractions.TaxRatesResponse;
 
 namespace DebCo.Services.Tax.Controllers
 {
@@ -16,9 +17,9 @@ namespace DebCo.Services.Tax.Controllers
     {
         private readonly ILogger<TaxRatesController> _logger;
         private readonly IMapper _mapper;
-        private readonly ITaxJarService _client;
+        private readonly ITaxServiceProvider _client;
 
-        public TaxRatesController(ILogger<TaxRatesController> logger, IMapper mapper, ITaxJarService client)
+        public TaxRatesController(ILogger<TaxRatesController> logger, IMapper mapper, ITaxServiceProvider client)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
@@ -31,7 +32,7 @@ namespace DebCo.Services.Tax.Controllers
 
         // GET: api/TaxRates/12345
         [HttpGet("{id}")]
-        [SwaggerOperation("Gets sales tax rates for a specified postal code",  OperationId = "GetRates")]
+        [SwaggerOperation("Gets sales tax rates for a specified postal code", OperationId = "GetRates")]
         [SwaggerResponse(StatusCodes.Status200OK, Description = "Get rates for postal code", Type = typeof(TaxRatesResponse))]
         [SwaggerResponse(StatusCodes.Status404NotFound, Description = "Get rates for postal code unsuccessful")]
         public async Task<ActionResult<TaxRatesResponse>> Get(string id)
@@ -40,9 +41,9 @@ namespace DebCo.Services.Tax.Controllers
 
             try
             {
-                var clientResult = await _client.GetRatesAsync(id).ConfigureAwait(false);
+                var clientResult = await _client.GetRatesAsync(new Providers.Abstractions.TaxRatesRequest() { PostalCode = id }).ConfigureAwait(false);
 
-                if (clientResult?.Rate == null)
+                if (clientResult?.Rates == null)
                 {
                     _logger.LogWarning("Get rates request for postal code {@PostalCode} unsuccessful: not found", id);
                     return NotFound(id);
@@ -63,7 +64,7 @@ namespace DebCo.Services.Tax.Controllers
 
         // POST: api/TaxRates
         [HttpPost]
-        [SwaggerOperation("Gets sales tax rates for a specified postal code",  OperationId = "GetRatesForAddress")]
+        [SwaggerOperation("Gets sales tax rates for a specified postal code", OperationId = "GetRatesForAddress")]
         [SwaggerResponse(StatusCodes.Status200OK, Description = "Get rates for address", Type = typeof(TaxRatesResponse))]
         [SwaggerResponse(StatusCodes.Status404NotFound, Description = "Get rates for address unsuccessful")]
         public async Task<ActionResult<TaxRatesResponse>> Post([FromBody] TaxRatesRequest request)
@@ -72,9 +73,9 @@ namespace DebCo.Services.Tax.Controllers
 
             try
             {
-                var clientResult = await _client.GetRatesAsync(request.PostalCode, _mapper.Map<RateAddress>(request)).ConfigureAwait(false);
+                var clientResult = await _client.GetRatesAsync(_mapper.Map<Providers.Abstractions.TaxRatesRequest>(request)).ConfigureAwait(false);
 
-                if (clientResult?.Rate == null)
+                if (clientResult?.Rates == null)
                 {
                     _logger.LogWarning("Get rates request for address {@Address} unsuccessful: not found", request);
                     return NotFound(request);

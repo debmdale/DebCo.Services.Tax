@@ -2,12 +2,10 @@
 using AutoMapper;
 using DebCo.Services.Tax.Providers.Abstractions;
 using DebCo.Services.Tax.Providers.TaxJar.Contracts;
-using JetBrains.Annotations;
 
-namespace DebCo.Services.Tax
+namespace DebCo.Services.Tax.Providers.Tests
 {
     [ExcludeFromCodeCoverage]
-    [UsedImplicitly]
     public class DebCoMappingProfile : Profile
     {
         public DebCoMappingProfile()
@@ -68,17 +66,11 @@ namespace DebCo.Services.Tax
             #endregion
 
             #region Providers.Abstractions_Tax.Abstractions
-            
-            CreateMap<QuoteTaxLineItem, Abstractions.QuoteTaxLineItem>().ReverseMap();
-            CreateMap<QuoteShippingTaxDetail, Abstractions.QuoteShippingTaxDetail>().ReverseMap();
-            CreateMap<QuoteTaxDetail, Abstractions.QuoteTaxDetail>().ReverseMap();
-            CreateMap<QuoteTaxJurisdictions, Abstractions.QuoteTaxJurisdictions>().ReverseMap();
-            CreateMap<TaxRates, Abstractions.TaxRates>().ReverseMap();
-            CreateMap<QuoteLineItem, Abstractions.QuoteLineItem>().ReverseMap();
-            CreateMap<QuoteTax, Abstractions.QuoteTax>().ReverseMap();
+
             CreateMap<Quote, Abstractions.Quote>().ReverseMap();
             CreateMap<TaxQuoteRequest, Abstractions.TaxQuoteRequest>().ReverseMap();
             CreateMap<TaxQuoteResponse, Abstractions.TaxQuoteResponse>().ReverseMap();
+
             CreateMap<TaxRatesRequest, Abstractions.TaxRatesRequest>().ReverseMap();
             CreateMap<TaxRatesResponse, Abstractions.TaxRatesResponse>().ReverseMap();
 

@@ -2,71 +2,89 @@
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using AutoMapper;
+using DebCo.Services.Tax.Providers.Abstractions;
 using DebCo.Services.Tax.Providers.TaxJar.Contracts;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace DebCo.Services.Tax.Providers.TaxJar
 {
-    public class TaxJarService : ITaxJarService
+    public class TaxJarService : ITaxService
     {
         private readonly IHttpClientFactory _clientFactory;
         private readonly ILogger<TaxJarService> _logger;
+        private readonly IMapper _mapper;
 
-        public TaxJarService(IHttpClientFactory clientFactory, ILogger<TaxJarService> logger)
+        public TaxJarService(IHttpClientFactory clientFactory, ILogger<TaxJarService> logger, IMapper mapper)
         {
             _clientFactory = clientFactory ?? throw new ArgumentNullException(nameof(clientFactory));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        }
+
+        
+        public async Task<TaxQuoteResponse> GetOrderTaxAsync(Quote order)
+        {
+            var result = await GetOrderTaxAsync(_mapper.Map<Order>(order)).ConfigureAwait(false);
+            return _mapper.Map<TaxQuoteResponse>(result);
+        }
+
+        public async Task<TaxRatesResponse> GetRatesAsync(TaxRatesRequest request)
+        {
+            RateAddress address = null;
+            if (!string.IsNullOrEmpty(request.City) || !string.IsNullOrEmpty(request.Country) ||
+                !string.IsNullOrEmpty(request.State) || !string.IsNullOrEmpty(request.Street))
+            {
+                address = _mapper.Map<RateAddress>(request);
+            }
+
+            var result = await GetRatesAsync(request.PostalCode, address).ConfigureAwait(false);
+            return _mapper.Map<TaxRatesResponse>(result);
         }
 
         public async Task<TaxResponse> GetOrderTaxAsync(Order order)
         {
-            using (var client = GetClient())
-            using (var response = await client.PostAsJsonAsync("taxes", order).ConfigureAwait(false))
+            using var client = GetClient();
+            using var response = await client.PostAsJsonAsync("taxes", order).ConfigureAwait(false);
+            var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
             {
-                var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    return JsonConvert.DeserializeObject<TaxResponse>(result);
-                }
-
-                await HandleResponseErrorAsync(response).ConfigureAwait(false);
-                return null;
+                return JsonConvert.DeserializeObject<TaxResponse>(result);
             }
+
+            await HandleResponseErrorAsync(response).ConfigureAwait(false);
+            return null;
         }
 
         public async Task<RateResponse> GetRatesAsync(string zip, RateAddress address = null)
         {
-            using (var client = GetClient())
+            using var client = GetClient();
+            HttpResponseMessage response;
+            if (address != null)
             {
-                HttpResponseMessage response;
-                if (address != null)
+                using var request = new HttpRequestMessage()
                 {
-                    using (var request = new HttpRequestMessage()
-                    {
-                        Method = HttpMethod.Get,
-                        RequestUri = new Uri($"{client.BaseAddress}/rates/{zip}"),
-                        Content = new StringContent(JsonConvert.SerializeObject(address))
-                    })
-                    {
-                        response = await client.SendAsync(request).ConfigureAwait(false);
-                    }
-                }
-                else
-                {
-                    response = await client.GetAsync($"rates/{zip}").ConfigureAwait(false);
-                }
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    return JsonConvert.DeserializeObject<RateResponse>(result);
-                }
-
-                await HandleResponseErrorAsync(response).ConfigureAwait(false);
-                return null;
+                    Method = HttpMethod.Get,
+                    RequestUri = new Uri($"{client.BaseAddress}/rates/{zip}"),
+                    Content = new StringContent(JsonConvert.SerializeObject(address))
+                };
+                response = await client.SendAsync(request).ConfigureAwait(false);
             }
+            else
+            {
+                response = await client.GetAsync($"rates/{zip}").ConfigureAwait(false);
+            }
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                return JsonConvert.DeserializeObject<RateResponse>(result);
+            }
+
+            await HandleResponseErrorAsync(response).ConfigureAwait(false);
+            return null;
         }
 
         private async Task HandleResponseErrorAsync(HttpResponseMessage response)

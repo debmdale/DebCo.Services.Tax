@@ -4,8 +4,9 @@ using System.Net.Http.Headers;
 using System.Security.Authentication;
 using AutoMapper;
 using DebCo.Services.Tax.Options;
+using DebCo.Services.Tax.Providers;
+using DebCo.Services.Tax.Providers.Abstractions;
 using DebCo.Services.Tax.Providers.TaxJar;
-using DebCo.Services.Tax.Providers.TaxJar.Contracts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -58,7 +59,9 @@ namespace DebCo.Services.Tax
 
             ConfigureServiceIntegrations(services, Configuration);
 
-            services.AddScoped<ITaxJarService, TaxJarService>();
+            services.AddScoped<ITaxService, TaxJarService>();
+            services.AddScoped<ITaxServiceProvider, TaxServiceProvider>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

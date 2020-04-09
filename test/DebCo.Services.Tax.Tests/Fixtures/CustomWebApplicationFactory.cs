@@ -1,5 +1,5 @@
 ﻿using DebCo.Services.Tax.Options;
-using DebCo.Services.Tax.Providers.TaxJar.Contracts;
+using DebCo.Services.Tax.Providers.Abstractions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -12,20 +12,20 @@ namespace DebCo.Services.Tax.Tests.Fixtures
         where TStartup : class
     {
         private IServiceScope _serviceScope;
-        private readonly Mock<ITaxJarService> _taxJarServiceMock;
+        private readonly Mock<ITaxServiceProvider> _taxServiceMock;
         public CustomWebApplicationFactory()
         {
-            _taxJarServiceMock = new Mock<ITaxJarService>(MockBehavior.Loose);
+            _taxServiceMock = new Mock<ITaxServiceProvider>(MockBehavior.Loose);
         }
 
 
         // will automatically reset when accessed via Property
-        public Mock<ITaxJarService> TaxJarServiceMock
+        public Mock<ITaxServiceProvider> TaxServiceMock
         {
             get
             {
-                _taxJarServiceMock.Reset();
-                return _taxJarServiceMock;
+                _taxServiceMock.Reset();
+                return _taxServiceMock;
             }
         }
 
@@ -39,7 +39,7 @@ namespace DebCo.Services.Tax.Tests.Fixtures
                     services =>
                     {
                         //services.AddAutoMapper(typeof(DebCoMappingProfile));
-                        services.AddSingleton(TaxJarServiceMock.Object);
+                        services.AddSingleton(TaxServiceMock.Object);
                     });
 
             var testHost = base.CreateHost(builder);
