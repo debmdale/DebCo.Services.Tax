@@ -1,12 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using DebCo.Services.Tax.Providers.Abstractions;
 using DebCo.Services.Tax.Providers.TaxJar.Contracts;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -66,18 +66,13 @@ namespace DebCo.Services.Tax.Providers.TaxJar
             HttpResponseMessage response;
             if (address != null)
             {
-                using var request = new HttpRequestMessage()
-                {
-                    Method = HttpMethod.Get,
-                    RequestUri = new Uri($"{client.BaseAddress}rates/{zip}"),
-                    Content = new StringContent(JsonConvert.SerializeObject(address),
-                        Encoding.UTF8, 
-                        "application/json")
-                };
-                client.DefaultRequestHeaders
-                    .Accept
-                    .Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                response = await client.SendAsync(request).ConfigureAwait(false);
+                var queryParams = new Dictionary<string, string>();
+                if (!string.IsNullOrWhiteSpace(address.Country)) queryParams.Add("country", address.Country);
+                if (!string.IsNullOrWhiteSpace(address.State)) queryParams.Add("state", address.State);
+                if (!string.IsNullOrWhiteSpace(address.City)) queryParams.Add("city", address.City);
+                if (!string.IsNullOrWhiteSpace(address.Street)) queryParams.Add("street", address.Street);
+                var url = QueryHelpers.AddQueryString($"rates/{zip}", queryParams);
+                response = await client.GetAsync(url).ConfigureAwait(false);
             }
             else
             {
