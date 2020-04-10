@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using DebCo.Services.Tax.Providers.Abstractions;
@@ -67,9 +69,14 @@ namespace DebCo.Services.Tax.Providers.TaxJar
                 using var request = new HttpRequestMessage()
                 {
                     Method = HttpMethod.Get,
-                    RequestUri = new Uri($"{client.BaseAddress}/rates/{zip}"),
-                    Content = new StringContent(JsonConvert.SerializeObject(address))
+                    RequestUri = new Uri($"{client.BaseAddress}rates/{zip}"),
+                    Content = new StringContent(JsonConvert.SerializeObject(address),
+                        Encoding.UTF8, 
+                        "application/json")
                 };
+                client.DefaultRequestHeaders
+                    .Accept
+                    .Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 response = await client.SendAsync(request).ConfigureAwait(false);
             }
             else
